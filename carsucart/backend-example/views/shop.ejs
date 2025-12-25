@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %> | CarSUcart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+    <nav class="bg-white border-b py-4 px-6 mb-8">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="font-bold text-xl text-green-600">CarSUcart</div>
+            <div class="space-x-4">
+                <a href="/" class="text-gray-600 hover:text-green-600">Home</a>
+                <a href="/shop" class="text-green-600 font-bold">Shop</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 flex gap-8">
+        
+        <!-- SIDEBAR FILTERS -->
+        <aside class="w-64 flex-shrink-0">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-lg mb-4 text-gray-900">Filters</h3>
+                
+                <div class="mb-6">
+                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Categories</h4>
+                    <div class="space-y-2">
+                        <!-- ALL categories are shown here, even empty ones -->
+                        <% categories.forEach(cat => { %>
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="text-gray-700 group-hover:text-green-600 <%= cat.product_count === 0 ? 'opacity-50' : '' %>">
+                                    <%= cat.name %>
+                                </span>
+                                <span class="text-xs text-gray-400 ml-auto bg-gray-100 px-2 py-0.5 rounded-full">
+                                    <%= cat.product_count %>
+                                </span>
+                            </label>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-yellow-50 rounded-lg text-sm text-yellow-800 border border-yellow-100">
+                    <strong>Developer Note:</strong> 
+                    Here, empty categories like "Automotive" are visible (but greyed out or just marked 0) so users can still try to filter by them if they want.
+                </div>
+            </div>
+        </aside>
+
+        <!-- PRODUCT GRID (Placeholder) -->
+        <div class="flex-1">
+            <div class="mb-6 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-800">All Products</h2>
+                <select class="border-gray-300 rounded-lg text-sm">
+                    <option>Sort by: Newest</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Just showing static products for context -->
+                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="h-48 bg-gray-100 rounded-lg mb-4"></div>
+                    <h3 class="font-bold">Smartphone</h3>
+                    <div class="text-green-600 font-bold">₱15,000</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="h-48 bg-gray-100 rounded-lg mb-4"></div>
+                    <h3 class="font-bold">Laptop</h3>
+                    <div class="text-green-600 font-bold">₱45,000</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

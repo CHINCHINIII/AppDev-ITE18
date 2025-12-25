@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarSUcart API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0fdf4;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(34, 197, 94, 0.1);
+        }
+        h1 {
+            color: #22c55e;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .api-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #f9fafb;
+        }
+        .api-section h3 {
+            color: #16a34a;
+            margin-top: 0;
+        }
+        button {
+            background-color: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #16a34a;
+        }
+        .response {
+            background-color: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        .input-group label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+        }
+        .input-group input {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status.error {
+            background-color: #fef2f2;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 CarSUcart API Tester</h1>
+        <p style="text-align: center; color: #6b7280;">Test your CarSUcart APIs directly in Chrome browser</p>
+
+        <!-- Health Check Section -->
+        <div class="api-section">
+            <h3>🏥 Health Check</h3>
+            <button onclick="testHealth()">Test API Health</button>
+            <div id="health-response" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Products Section -->
+        <div class="api-section">
+            <h3>🛍️ Products</h3>
+            <button onclick="getAllProducts()">Get All Products</button>
+            <button onclick="getProductById()">Get Product by ID</button>
+            <div class="input-group">
+                <label>Product ID:</label>
+                <input type="number" id="product-id" value="1" min="1">
+            </div>
+            <div id="products-response" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="api-section">
+            <h3>📂 Categories</h3>
+            <button onclick="getAllCategories()">Get All Categories</button>
+            <button onclick="getCategoryById()">Get Category by ID</button>
+            <div class="input-group">
+                <label>Category ID:</label>
+                <input type="number" id="category-id" value="1" min="1">
+            </div>
+            <div id="categories-response" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="api-section">
+            <h3>🔐 Authentication</h3>
+            <button onclick="testLogin()">Test Login (Admin)</button>
+            <button onclick="testRegister()">Test Register</button>
+            <div id="auth-response" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Cart Section -->
+        <div class="api-section">
+            <h3>🛒 Shopping Cart</h3>
+            <button onclick="getCart()">Get Cart</button>
+            <button onclick="addToCart()">Add to Cart</button>
+            <div class="input-group">
+                <label>Product ID:</label>
+                <input type="number" id="cart-product-id" value="1" min="1">
+            </div>
+            <div class="input-group">
+                <label>Quantity:</label>
+                <input type="number" id="cart-quantity" value="1" min="1">
+            </div>
+            <div id="cart-response" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="api-section">
+            <h3>📋 Orders</h3>
+            <button onclick="getOrders()">Get My Orders</button>
+            <button onclick="getOrderById()">Get Order by ID</button>
+            <div class="input-group">
+                <label>Order ID:</label>
+                <input type="number" id="order-id" value="1" min="1">
+            </div>
+            <div id="orders-response" class="response" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        let authToken = null;
+
+        // Helper function to make API calls
+        async function apiCall(url, options = {}) {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                const data = await response.json();
+                return { success: response.ok, data, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Helper function to display response
+        function displayResponse(elementId, result) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            
+            if (result.success) {
+                element.innerHTML = `<div class="status success">✅ Success (${result.status})</div>\n${JSON.stringify(result.data, null, 2)}`;
+            } else {
+                element.innerHTML = `<div class="status error">❌ Error</div>\n${JSON.stringify(result.error || result.data, null, 2)}`;
+            }
+        }
+
+        // Health Check
+        async function testHealth() {
+            const result = await apiCall(`${API_BASE}/health`);
+            displayResponse('health-response', result);
+        }
+
+        // Products
+        async function getAllProducts() {
+            const result = await apiCall(`${API_BASE}/products`);
+            displayResponse('products-response', result);
+        }
+
+        async function getProductById() {
+            const productId = document.getElementById('product-id').value;
+            const result = await apiCall(`${API_BASE}/products/${productId}`);
+            displayResponse('products-response', result);
+        }
+
+        // Categories
+        async function getAllCategories() {
+            const result = await apiCall(`${API_BASE}/categories`);
+            displayResponse('categories-response', result);
+        }
+
+        async function getCategoryById() {
+            const categoryId = document.getElementById('category-id').value;
+            const result = await apiCall(`${API_BASE}/categories/${categoryId}`);
+            displayResponse('categories-response', result);
+        }
+
+        // Authentication
+        async function testLogin() {
+            const result = await apiCall(`${API_BASE}/login`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: 'admin@carsucart.csu.edu.ph',
+                    password: 'admin123'
+                })
+            });
+            
+            if (result.success && result.data.data && result.data.data.token) {
+                authToken = result.data.data.token;
+                result.data.message = 'Login successful! Token saved for authenticated requests.';
+            }
+            
+            displayResponse('auth-response', result);
+        }
+
+        async function testRegister() {
+            const result = await apiCall(`${API_BASE}/register`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: 'Test User',
+                    email: 'test@student.csu.edu.ph',
+                    password: 'password123',
+                    role: 'buyer',
+                    contact_no: '09123456789'
+                })
+            });
+            displayResponse('auth-response', result);
+        }
+
+        // Cart
+        async function getCart() {
+            const result = await apiCall(`${API_BASE}/cart`);
+            displayResponse('cart-response', result);
+        }
+
+        async function addToCart() {
+            const productId = document.getElementById('cart-product-id').value;
+            const quantity = document.getElementById('cart-quantity').value;
+            
+            const result = await apiCall(`${API_BASE}/cart/add`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    product_id: parseInt(productId),
+                    qty: parseInt(quantity)
+                })
+            });
+            displayResponse('cart-response', result);
+        }
+
+        // Orders
+        async function getOrders() {
+            const result = await apiCall(`${API_BASE}/orders`);
+            displayResponse('orders-response', result);
+        }
+
+        async function getOrderById() {
+            const orderId = document.getElementById('order-id').value;
+            const result = await apiCall(`${API_BASE}/orders/${orderId}`);
+            displayResponse('orders-response', result);
+        }
+
+        // Auto-test on page load
+        window.onload = function() {
+            console.log('CarSUcart API Tester loaded!');
+            console.log('Click the buttons to test different API endpoints.');
+        };
+    </script>
+</body>
+</html>

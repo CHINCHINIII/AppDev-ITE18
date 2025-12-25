@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %> | CarSUcart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+    <nav class="bg-white border-b py-4 px-6 mb-8">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="font-bold text-xl text-green-600">CarSUcart</div>
+            <div class="space-x-4">
+                <a href="/" class="text-green-600 font-bold">Home</a>
+                <a href="/shop" class="text-gray-600 hover:text-green-600">Shop</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Welcome to CarSUcart</h1>
+            <p class="text-lg text-gray-600">Discover items available on campus.</p>
+        </div>
+
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Featured Categories</h2>
+        
+        <!-- DYNAMIC CATEGORY GRID -->
+        <!-- Only categories with items are passed here from the controller -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <% if (categories.length === 0) { %>
+                <p>No active categories found.</p>
+            <% } else { %>
+                <% categories.forEach(cat => { %>
+                    <a href="/shop?category=<%= cat.slug %>" class="group block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-100">
+                        <div class="h-32 bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors">
+                            <!-- Placeholder Icon -->
+                            <span class="text-4xl font-bold"><%= cat.name.charAt(0) %></span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-gray-900 group-hover:text-green-600"><%= cat.name %></h3>
+                            <p class="text-sm text-gray-500"><%= cat.product_count %> items</p>
+                        </div>
+                    </a>
+                <% }) %>
+            <% } %>
+        </div>
+
+        <div class="mt-12 p-6 bg-blue-50 rounded-xl border border-blue-100 text-center">
+            <p class="text-blue-800">
+                <strong>Developer Note:</strong> Notice "Automotive" and "Books" are missing? 
+                That's because they have 0 products, so the Landing Page Controller filtered them out.
+            </p>
+        </div>
+    </main>
+
+</body>
+</html>
